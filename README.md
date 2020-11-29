@@ -1,18 +1,18 @@
 # Employee-Tracker
 
 ## Table of Contents
-[Description](#description)  
-[Deployment](#deployment)
-[Installation](#installation)  
-[Usage](#usage)
-[Questions](#questions)  
+[Description](#description)    
+[Deployment](#deployment)  
+[Installation](#installation)    
+[Usage](#usage)  
+[Questions](#questions)    
 
 ## Description
 
 A Content Management System (CMS) designed to allow a business owner to manage their employees. This app allows for the user to populate a data base with a list of their employees, their id numbers, roles, departments, and salaries through the app's interface. The user can also create new department and role categories, along with updating current employees' information, and adding new employees to the roster.
 
 ## Deployment
-[Repository](https://github.com/apemint/Note-Taker)
+[Repository](https://github.com/apemint/Employee-Tracker)
 [video](https://drive.google.com/file/d/1GsAq5XvAlwREIyeLbe6AHbAaQUytcy_f/view)
 
 
