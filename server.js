@@ -58,35 +58,55 @@ function addDepartment() {
 
 //==========Add Role
 function addRole() {
-    
-        inquirer.prompt([
+
+    inquirer.prompt([
+        {
+            name: "Role",
+            type: "input",
+            message: "Name of Role being added?"
+        },
+        {
+            name: "Salary",
+            type: "input",
+            message: "Salary for new Role?"
+        },
+        {
+            name: "Department",
+            type: "list",
+            message: "Add role to which department?",
+            choices: listDepartments()
+        }
+    ]).then(function (res) {
+        let departmentId = listDepartments().indexOf(res.Department) + 1;
+        connection.query(
+            "INSERT INTO role SET ?", ///how to take department name and get id from dep table and insert into role table
             {
-                name: "Role",
-                type: "input",
-                message: "Name of Role being added?"
+                title: res.Role,
+                salary: res.Salary,
+                department_id: departmentId,
             },
-            {
-                name: "Salary",
-                type: "input",
-                message: "Salary for new Role?"
+            function (err) {
+                if (err) throw err;
+                console.table(res);
+                start();
             }
-        ]).then(function (res) {
-            connection.query(
-                "INSERT INTO role SET ?",
-                {
-                    title: res.Role,
-                    salary: res.Salary,
-                },
-                function (err) {
-                    if (err) throw err;
-                    console.table(res);
-                    start();
-                }
-            )
-        })
-   
+        )
+    })
+
 }
 
+//function to list updated departments to choose ffrom
+let departments = [];
+function listDepartments() {
+    connection.query("SELECT * FROM department", function (err, res) {
+        if (err) throw err;
+
+        for (var i = 0; i < res.length; i++) {
+            departments.push(res[i].department_name);
+        }
+    })
+    return departments;
+}
 //==========Add Employee
 //inquirer to ask for input then push to db
 function addEmployee() {
@@ -151,7 +171,7 @@ function viewRoles() {
 //========= VIEW EMPLOYEES
 function viewEmployees() {
     console.log("Viewing all employees...\n");
-    connection.query("SELECT employee.id, employee.first_name, employee.last_name, department.department_name AS Department FROM employee JOIN role ON employee.role_id = role.role_id JOIN department ON role.department_id = department.department_id ORDER BY employee.id;", function (err, res) {
+    connection.query("SELECT employee.id, employee.first_name, employee.last_name, department.department_name, employee.role_id FROM employee JOIN role ON employee.role_id = role.role_id JOIN department ON role.department_id = department.department_id ORDER BY employee.id;", function (err, res) {
         if (err) throw err;
         console.table(res); //console.table(res) here?
         start();
@@ -162,17 +182,22 @@ function viewEmployees() {
 //---------UPDATE EMPLOYEE-------------------------
 //=================================================
 
+
+
 function updateRoles() {
-    connection.query("SELECT last_name, first_name, role_id FROM employee, role", function (err, res) {
+    connection.query("SELECT last_name, first_name, employee.role_id FROM employee JOIN role on employee.role_id = role.role_id", function (err, res) {
         if (err) throw err;
+
         inquirer.prompt([
             {
-                name: "lastname",
+                name: "lastName",
                 type: "list",
                 message: "Employee last name",
                 choices: function () {
                     let lastName = [];
-                    res.forEach(lastName.push(res[i].last_name));
+                    for (var i = 0; i < res.length; i++) {
+                        lastName.push(res[i].last_name);
+                    }
                     return lastName;
                 },
             },
@@ -183,17 +208,20 @@ function updateRoles() {
                 choices: listRoles()
             }
         ]).then(function (answer) {
-            let roleId = listRoles().indexOf(answer.role) + 1;
-            connection.query("UPDATE employee SET WHERE ?",
-                {
-                    last_name: answer.lastName
-                },
-                {
-                    role_id: roleId
-                },
-                function (err) {
+            let roleId = listRoles().indexOf(answer.role) + 1
+            connection.query("UPDATE employee SET ? WHERE  ?",
+                [
+                   
+                    {
+                        role_id: roleId,
+                    },
+                     {
+                        last_name: answer.lastName,
+                    },
+                ],
+                function (err, res) {
                     if (err) throw err;
-                    console.table(answer);
+                    console.table(res);
                     start();
                 })
         })
@@ -203,13 +231,13 @@ function updateRoles() {
 //function to get updated roles from db to display to choose in prompts.
 let roles = [];
 function listRoles() {
-    connection.query("SELECT * FROM role", function(err, res) {
+    connection.query("SELECT * FROM role", function (err, res) {
         if (err) throw err;
 
         for (var i = 0; i < res.length; i++) {
             roles.push(res[i].title);
-          }
-        
+        }
+
     })
     return roles;
 }
